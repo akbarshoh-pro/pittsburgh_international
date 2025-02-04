@@ -1,10 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:location/location.dart' as loc;
 import 'package:pittsburgh_international/core/widgets/dialog/busy_station_dialog.dart';
 import 'package:pittsburgh_international/core/widgets/dialog/empty_station_dialog.dart';
+
+import '../../../core/constants/app_colors.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -27,6 +30,7 @@ class MapScreenState extends State<MapScreen> {
   int _clusterManagerIdCounter = 1;
   int _markerIdCounter = 1;
   Cluster? lastCluster;
+  BitmapDescriptor? _customMarker;
 
   @override
   void initState() {
@@ -38,21 +42,39 @@ class MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     _addClusterManager();
     return Scaffold(
-      body: GoogleMap(
-        onMapCreated: (mapController) {
-          setState(() {
-            controller = mapController;
-          });
-        },
-        initialCameraPosition: CameraPosition(
-          target: _currentLocation != null
-              ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
-              : center,
-          zoom: 11.0,
-        ),
-        myLocationEnabled: true,
-        markers: Set<Marker>.of(markers.values),
-        clusterManagers: Set<ClusterManager>.of(clusterManagers.values),
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (mapController) {
+              setState(() {
+                controller = mapController;
+              });
+            },
+            initialCameraPosition: CameraPosition(
+              target: _currentLocation != null
+                  ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
+                  : center,
+              zoom: 11.0,
+            ),
+            myLocationEnabled: true,
+            markers: Set<Marker>.of(markers.values),
+            clusterManagers: Set<ClusterManager>.of(clusterManagers.values),
+          ),
+          Positioned(
+            bottom: 120,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: AppColors.purple,
+                  shape: BoxShape.circle
+                ),
+                child: SvgPicture.asset(
+                  'assets/svg/ic_fl.svg'
+                ),
+              )
+          )
+        ],
       ),
     );
   }
@@ -99,7 +121,18 @@ class MapScreenState extends State<MapScreen> {
     _addMarkersToCluster(clusterManager);
   }
 
-  void _addMarkersToCluster(ClusterManager clusterManager) {
+  Future<void> _loadCustomMarker() async {
+    final BitmapDescriptor customIcon = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(48, 48)),
+      'assets/png/ic_station.png',
+    );
+    setState(() {
+      _customMarker = customIcon;
+    });
+  }
+
+  Future<void> _addMarkersToCluster(ClusterManager clusterManager) async {
+    await _loadCustomMarker();
     for (int i = 0; i < _markersToAddToClusterManagerCount; i++) {
       final String markerIdVal =
           '${clusterManager.clusterManagerId.value}_marker_id_$_markerIdCounter';
@@ -115,6 +148,7 @@ class MapScreenState extends State<MapScreen> {
       final Marker marker = Marker(
         clusterManagerId: clusterManager.clusterManagerId,
         markerId: markerId,
+        icon: _customMarker!,
         position: LatLng(
           center.latitude + _getRandomOffset(),
           center.longitude + _getRandomOffset() + clusterManagerLongitudeOffset,

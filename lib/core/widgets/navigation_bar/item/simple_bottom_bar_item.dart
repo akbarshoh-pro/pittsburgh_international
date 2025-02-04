@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pittsburgh_international/core/utils/ui/ui_utils.dart';
 
 class SimpleBottomBarItem extends StatelessWidget {
@@ -11,7 +12,7 @@ class SimpleBottomBarItem extends StatelessWidget {
     super.key
   });
 
-  final IconData icon;
+  final String icon;
   final String text;
   final bool isSelected;
   final Color selectedColor;
@@ -22,8 +23,16 @@ class SimpleBottomBarItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          size: 24,
+        if (isSelected)
+          Container(
+            width: 30,
+            height: 2,
+            color: selectedColor,
+          ),
+        const Spacer(),
+        SvgPicture.asset(
+          width: 24,
+          height: 24,
           icon,
           color: isSelected ? selectedColor : defColor,
         ),

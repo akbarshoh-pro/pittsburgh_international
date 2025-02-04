@@ -71,7 +71,7 @@ class BusyStationDialog extends StatelessWidget {
                 },
                 title: 'Прекратить зарядку',
                 bgColor: AppColors.red2,
-                textColor: AppColors.white
+                textColor: AppColors.dark
             ),
             20.ph
           ],

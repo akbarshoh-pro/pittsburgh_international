@@ -19,7 +19,7 @@ class SimpleBottomBar extends StatelessWidget {
   final void Function(int) onTap;
   final Color selectedColor;
   final Color unselectedColor;
-  final List<IconData> icons;
+  final List<String> icons;
   final List<String> texts;
 
   @override
@@ -27,6 +27,8 @@ class SimpleBottomBar extends StatelessWidget {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 8,
+      height: 64,
+      padding: const EdgeInsets.only(top: 0, left: 16, right: 16),
       elevation: 1000,
       color: AppColors.white,
       child: Row(

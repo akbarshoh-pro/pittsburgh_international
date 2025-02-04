@@ -15,7 +15,7 @@ class OthersCard extends StatelessWidget {
       child: Column(
         children: [
           const ProfileItem(
-              icon: Icons.settings,
+              icon: 'assets/svg/ic_s.svg',
               title: 'Настройки'
           ),
           Container(
@@ -25,7 +25,7 @@ class OthersCard extends StatelessWidget {
             color: AppColors.grey,
           ),
           const ProfileItem(
-              icon: Icons.chat_bubble_outline,
+              icon: 'assets/svg/ic_c.svg',
               title: 'Служба поддержки'
           ),
           Container(
@@ -35,7 +35,7 @@ class OthersCard extends StatelessWidget {
             color: AppColors.grey,
           ),
           const ProfileItem(
-              icon: Icons.list_alt,
+              icon: 'assets/svg/ic_f.svg',
               title: 'Условия использования'
           ),
           Container(
@@ -45,7 +45,7 @@ class OthersCard extends StatelessWidget {
             color: AppColors.grey,
           ),
           const ProfileItem(
-              icon: Icons.info_outline,
+              icon: 'assets/svg/ic_i.svg',
               title: 'О нас'
           )
         ],

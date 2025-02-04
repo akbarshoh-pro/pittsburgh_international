@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pittsburgh_international/core/constants/app_colors.dart';
 
 import '../../../core/widgets/navigation_bar/bottom_bar/simple_bottom_bar.dart';
@@ -38,16 +39,15 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             end: Alignment.topRight,
           ),
         ),
-        child: const FloatingActionButton(
+        child: FloatingActionButton(
           onPressed: null,
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: Icon(
-            Icons.directions_car,
-            color: Colors.white,
-            size: 28,
-          ),
+          child: SvgPicture.asset(
+            'assets/svg/ic_car.svg',
+            width: 30,
+          )
         ),
       ),
 
@@ -61,7 +61,12 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           },
           selectedColor: AppColors.purple,
           unselectedColor: AppColors.grey,
-          icons: const [Icons.map_outlined, Icons.history, Icons.chat_bubble_outline, Icons.person],
+          icons: const [
+            'assets/svg/ic_map.svg',
+            'assets/svg/ic_his.svg',
+            'assets/svg/ic_mes.svg',
+            'assets/svg/ic_us.svg'
+          ],
           texts: const [
             'Карта',
             'История',

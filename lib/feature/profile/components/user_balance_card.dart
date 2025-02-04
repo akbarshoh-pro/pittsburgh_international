@@ -16,7 +16,7 @@ class UserBalanceCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const IconWithBg(icon: Icons.account_balance_wallet),
+          const IconWithBg(icon: 'assets/svg/ic_w.svg'),
           16.pw,
           Text(
             'Кошелек',

@@ -14,7 +14,7 @@ class LogOutCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12)
       ),
       child: const ProfileItem(
-          icon: Icons.login,
+          icon: 'assets/svg/ic_l.svg',
           color: AppColors.red,
           title: 'Выйти из аккаунта'
       ),

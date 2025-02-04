@@ -6,7 +6,7 @@ import 'icon_with_bg.dart';
 
 class ProfileItem extends StatelessWidget {
   const ProfileItem({super.key, required this.icon, required this.title, this.color});
-  final IconData icon;
+  final String icon;
   final String title;
   final Color? color;
 

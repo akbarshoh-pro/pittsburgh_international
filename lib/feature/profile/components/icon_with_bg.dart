@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pittsburgh_international/core/constants/app_colors.dart';
 
 class IconWithBg extends StatelessWidget {
   const IconWithBg({super.key, required this.icon, this.color = AppColors.purple});
-  final IconData icon;
+  final String icon;
   final Color color;
   @override
   Widget build(BuildContext context) {
@@ -13,9 +14,10 @@ class IconWithBg extends StatelessWidget {
         color: AppColors.lightGrey,
         borderRadius: BorderRadius.circular(8)
       ),
-      child: Icon(
+      child: SvgPicture.asset(
         icon,
-        size: 24,
+        width: 24,
+        height: 24,
         color: color,
       ),
     );
