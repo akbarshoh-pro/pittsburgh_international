@@ -1,152 +1,139 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
+import 'package:location/location.dart' as loc;
 import 'package:pittsburgh_international/core/widgets/dialog/busy_station_dialog.dart';
 import 'package:pittsburgh_international/core/widgets/dialog/empty_station_dialog.dart';
-
-import '../../../core/constants/app_colors.dart';
-
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  State<StatefulWidget> createState() => MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
-  late GoogleMapController mapController;
-  final Location _location = Location();
-  LatLng _currentPosition = const LatLng(41.2995, 69.2401);
-  Set<Marker> _markers = {};
-  BitmapDescriptor? _customMarker;
+class MapScreenState extends State<MapScreen> {
+  static const LatLng center = LatLng(41.2995, 69.2401);
+  static const double _markerOffsetFactor = 0.05;
+  static const double _clusterManagerLongitudeOffset = 0.1;
+  static const int _markersToAddToClusterManagerCount = 20;
 
+  GoogleMapController? controller;
+  loc.LocationData? _currentLocation;
+  Map<ClusterManagerId, ClusterManager> clusterManagers = <ClusterManagerId, ClusterManager>{};
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+  MarkerId? selectedMarker;
+  int _clusterManagerIdCounter = 1;
+  int _markerIdCounter = 1;
+  Cluster? lastCluster;
 
   @override
   void initState() {
     super.initState();
-    _loadCustomMarker();
     _getCurrentLocation();
   }
 
   @override
   Widget build(BuildContext context) {
+    _addClusterManager();
     return Scaffold(
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(target: _currentPosition, zoom: 12),
-            onMapCreated: (GoogleMapController controller) {
-              mapController = controller;
-              _getCurrentLocation();
-            },
-            markers: _markers,
-            myLocationEnabled: true,
-          ),
-          Positioned(
-            bottom: 130,
-              right: 20,
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.purple
-                ),
-                padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  Icons.filter_list,
-                  color: AppColors.white,
-                ),
-              )
-          )
-        ],
+      body: GoogleMap(
+        onMapCreated: (mapController) {
+          setState(() {
+            controller = mapController;
+          });
+        },
+        initialCameraPosition: CameraPosition(
+          target: _currentLocation != null
+              ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
+              : center,
+          zoom: 11.0,
+        ),
+        myLocationEnabled: true,
+        markers: Set<Marker>.of(markers.values),
+        clusterManagers: Set<ClusterManager>.of(clusterManagers.values),
       ),
     );
-  }
-
-  Future<void> _loadCustomMarker() async {
-    final BitmapDescriptor customIcon = await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(28, 28)),
-      'assets/png/ic_chrg.png',
-    );
-    setState(() {
-      _customMarker = customIcon;
-      _generateFixedMarkers();
-    });
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
+    ph.PermissionStatus permissionStatus = await ph.Permission.location.status;
 
-    serviceEnabled = await _location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await _location.requestService();
-      if (!serviceEnabled) return;
+    if (permissionStatus.isGranted) {
+      loc.Location location = loc.Location();
+      _currentLocation = await location.getLocation();
+      setState(() {});
+    } else {
+      ph.PermissionStatus newStatus = await ph.Permission.location.request();
+      if (newStatus.isGranted) {
+        loc.Location location = loc.Location();
+        _currentLocation = await location.getLocation();
+        setState(() {});
+      } else {
+        print("Location permission denied");
+      }
+    }
+  }
+
+  void _addClusterManager() {
+    if (clusterManagers.length == 1) {
+      return;
     }
 
-    permissionGranted = await _location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await _location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
-    }
+    final String clusterManagerIdVal =
+        'cluster_manager_id_$_clusterManagerIdCounter';
+    _clusterManagerIdCounter++;
+    final ClusterManagerId clusterManagerId = ClusterManagerId(clusterManagerIdVal);
 
-    LocationData locationData = await _location.getLocation();
-    setState(() {
-      _currentPosition = LatLng(locationData.latitude!, locationData.longitude!);
-    });
-
-    mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: _currentPosition, zoom: 14),
-      ),
+    final ClusterManager clusterManager = ClusterManager(
+      clusterManagerId: clusterManagerId,
+      onClusterTap: (Cluster cluster) => setState(() {
+        lastCluster = cluster;
+      }),
     );
-  }
-
-  void _generateFixedMarkers() {
-    if (_customMarker == null) return;
-
-    Set<Marker> markers = {};
-
-    List<LatLng> fixedPoints = const [
-      LatLng(41.2995, 69.2401),
-      LatLng(41.3050, 69.2050),
-      LatLng(41.3100, 69.2500),
-      LatLng(41.3105, 69.2600),
-      LatLng(41.3150, 69.2200),
-      LatLng(41.3200, 69.2700),
-      LatLng(41.3250, 69.2350),
-      LatLng(41.3300, 69.2800),
-      LatLng(41.3350, 69.2300),
-      LatLng(41.3400, 69.2100),
-      LatLng(41.3450, 69.2550),
-      LatLng(41.3500, 69.2650),
-      LatLng(41.3550, 69.2800),
-      LatLng(41.3600, 69.2950),
-      LatLng(41.3650, 69.2250),
-    ];
-
-    for (int i = 0; i < fixedPoints.length; i++) {
-      LatLng point = fixedPoints[i];
-      markers.add(
-        Marker(
-            markerId: MarkerId('marker_$i'),
-            position: point,
-            infoWindow: InfoWindow(title: 'Метка $i'),
-            icon: _customMarker!,
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => i % 2 == 0 ? const BusyStationDialog() : const EmptyStationDialog()
-              );
-            }
-        ),
-      );
-    }
 
     setState(() {
-      _markers = markers;
+      clusterManagers[clusterManagerId] = clusterManager;
     });
+    _addMarkersToCluster(clusterManager);
   }
 
+  void _addMarkersToCluster(ClusterManager clusterManager) {
+    for (int i = 0; i < _markersToAddToClusterManagerCount; i++) {
+      final String markerIdVal =
+          '${clusterManager.clusterManagerId.value}_marker_id_$_markerIdCounter';
+      _markerIdCounter++;
+      final MarkerId markerId = MarkerId(markerIdVal);
+
+      final int clusterManagerIndex =
+      clusterManagers.values.toList().indexOf(clusterManager);
+
+      final double clusterManagerLongitudeOffset =
+          clusterManagerIndex * _clusterManagerLongitudeOffset;
+
+      final Marker marker = Marker(
+        clusterManagerId: clusterManager.clusterManagerId,
+        markerId: markerId,
+        position: LatLng(
+          center.latitude + _getRandomOffset(),
+          center.longitude + _getRandomOffset() + clusterManagerLongitudeOffset,
+        ),
+        infoWindow: InfoWindow(title: markerIdVal, snippet: '*'),
+        onTap: () {
+          showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => i % 2 == 0 ? const BusyStationDialog() : const EmptyStationDialog()
+          );
+        },
+      );
+      markers[markerId] = marker;
+    }
+    setState(() {});
+  }
+
+  double _getRandomOffset() {
+    return (Random().nextDouble() - 0.5) * _markerOffsetFactor;
+  }
 }
