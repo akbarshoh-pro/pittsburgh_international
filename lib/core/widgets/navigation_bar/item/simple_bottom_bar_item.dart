@@ -31,8 +31,8 @@ class SimpleBottomBarItem extends StatelessWidget {
           ),
         const Spacer(),
         SvgPicture.asset(
-          width: 24,
-          height: 24,
+          width: 26,
+          height: 26,
           icon,
           color: isSelected ? selectedColor : defColor,
         ),

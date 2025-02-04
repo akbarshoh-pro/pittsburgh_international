@@ -26,20 +26,18 @@ class SimpleBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
+      notchMargin: 10,
       height: 64,
-      padding: const EdgeInsets.only(top: 0, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
       elevation: 1000,
       color: AppColors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildBarItem(context, 0),
-          8.pw,
           _buildBarItem(context, 1),
-          72.pw,
+          90.pw,
           _buildBarItem(context, 2),
-          8.pw,
           _buildBarItem(context, 3),
         ],
       ),

@@ -31,6 +31,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         ],
       ),
       floatingActionButton: Container(
+        width: 64,
+        height: 64,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
