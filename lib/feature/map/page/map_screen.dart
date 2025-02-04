@@ -119,7 +119,6 @@ class MapScreenState extends State<MapScreen> {
           center.latitude + _getRandomOffset(),
           center.longitude + _getRandomOffset() + clusterManagerLongitudeOffset,
         ),
-        infoWindow: InfoWindow(title: markerIdVal, snippet: '*'),
         onTap: () {
           showModalBottomSheet(
               context: context,
